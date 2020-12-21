@@ -8,10 +8,10 @@ define students = Character("Students")
 define tammi = Character("Tammi tamir")
 define karnaf = Character("karnaf man")
 define yossi_calc = Character("Yossi ")
-define yossi = Character("Yossi")
+define yossi = Character("Yossi Maaravi")
 define avner = Character("Avner")
 define azugy = Character("Azugy")
-define janitor = Character("Scary janitor")
+define janitor = Character("The janitor")
 define yonit = Character("Yonit Levy")
 
 
@@ -19,6 +19,7 @@ define yonit = Character("Yonit Levy")
 label start:
     $ counter = 0
     $ resolved = []
+    $ counters = {"entre" : 0, "flags" : 0, "cs" : 0 }
     scene news
     yonit "NEWS REPORT"
     yonit "129,213 new people were found positive for Covid-19 in the past 24 Hours."
@@ -37,7 +38,7 @@ label start:
     $ renpy.pause(1.5)
     
 
-    scene bg bla
+    scene bg entre
     with fade
 
     students "Let's get to Raichman's office as fast as possible!"
@@ -63,7 +64,7 @@ label flags:
     scene black
     show tammi tamir
     with dissolve
-    if counter == 0:
+    if counters["flags"] == 0:
         tammi "Students? shoudln't you be in home learning how to spell the word Dijkstra?"
         students "Um.. kinda, but we are here for something else"
         students "We are looking for the vaccine that they talked about in the news, someone told us you should know where to start"
@@ -81,20 +82,18 @@ label flags:
         tammi "I think I heard something about the vaccine in the aquarioum today from a student that was talking there… maybe he is still there."
         $ resolved.append("flags1")
         $ requests.post(url+"/resolved", data = {'data' : 'flags1'})
-        $ counter = 0
         jump map
     else:
-        tammi "This is incorrect"
-        $ counter += 1
-        if counter > 3:
-            $ counter = 1
+        $ counters["flags"] += 1
+        if counters["flags"] > 3:
+            $ counters["flags"] = 1
             tammi "You've done me wrong one time to many now you will get a penalty, Dijkstra wouldn't disappoint me like this"
             "Penalty 30 seconds"
             $ renpy.pause(30)
         jump flags
 
 label flags2:
-    scene bg bla
+    scene bg entre
     show tammi tamir
     tammi "There is nothing else for you to do here"
     jump map
@@ -134,7 +133,7 @@ label aquarium2:
 
 
 label karnaf:
-    scene bg bla
+    scene bg entre
     if "karnaf1" in resolved:
         jump karnaf2
     show karnaf
@@ -179,13 +178,13 @@ label karnaf3:
         jump karnaf3
 
 label karnaf4:
-    scene bg bla
+    scene bg entre
     show karnaf
     karnaf "Leave me alone alredy bro"
     jump map
 
 label psycho:
-    scene bg bla
+    scene classroom
     show avner
     if "aquarium2" not in resolved:
         avner "Come back later I'm in the middle of zoom lecture"
@@ -205,6 +204,7 @@ label psycho:
             avner "I also think Yossi is the one who put the vaccines in Raichman's office. Go talked to him, but I also heard he is super busy with a conspiracy theorms on Reddit"
             avner "Now get out, I have a class in a minute."
             $ resolved.append("talkedtoavner")
+            $ requests.post(url+"/resolved", data = {'data' : 'talkedtoavner'})
         else:
             avner "I Told you already! its is the number of the “ADAMA”, following the number of the definition of NulA"
             jump map
@@ -215,7 +215,7 @@ label richman:
     jump map
 
 label comms:
-    scene bg bla
+    scene comms
     show janitor
     janitor "Hey!! what are you doing here the campus is close!!!"
     jump map
@@ -230,26 +230,26 @@ label exists:
     jump map
 
 label cs:
-    show yossi
+    scene classroom
+    show yossi_calc
     with dissolve
     if "talkedtoavner" not in resolved:
-        yossi "I'm in the middle of something"
+        yossi_calc "I'm in the middle of something"
         jump map
     if "helpyossi" in resolved:
-        yossi "I told you go see Max"
+        yossi_calc "I told you go see Max"
         jump map
-        
     else:            
-        if counter == 0:
-            yossi "*ON THE PHONE*"
-            yossi "I swear it exists! I proved it, It cannot be!"
-            yossi "I’ll prove it to you. Square root of 2 exists, I just know it’s true"
-            yossi "Students! Aren’t you in your second year in computer science studies? You came just in time"
+        if counters["cs"] == 0:
+            yossi_calc "*ON THE PHONE*"
+            yossi_calc "I swear it exists! I proved it, It cannot be!"
+            yossi_calc "I’ll prove it to you. Square root of 2 exists, I just know it’s true"
+            yossi_calc "Students! Aren’t you in your second year in computer science studies? You came just in time"
             students "Just in time for… what exactly?"
-            yossi "There is a huge conspiracy on facebook, people says the square root of 2 isn’t real. They say it never existed!!"
-            yossi "I need to know the date i’ve proved it to you, i’ll show the world i’m right"
+            yossi_calc "There is a huge conspiracy on facebook, people says the square root of 2 isn’t real. They say it never existed!!"
+            yossi_calc "I need to know the date i’ve proved it to you, i’ll show the world i’m right"
             students "Ok… but first, maybe you know something about the new IDC vaccine?"
-            yossi "I’m Yossi Shamai. I know everything. Just help me first, i’ll help you after."
+            yossi_calc "I’m Yossi Shamai. I know everything. Just help me first, i’ll help you after."
             $ response = renpy.input("What was that holy date???! (dd/mm/yyyy Format) (14/11/2019)")
         else:
             $ response = renpy.input("Dont lie to me")
@@ -258,21 +258,12 @@ label cs:
                 yossi "Wow! Thank you, Talk to Max, I have no time, I need to show the world I was right"
                 hide yossi with dissolve
                 $ resolved.append("helpyossi")
+                $ requests.post(url+"/resolved", data = {'data' : 'helpyossi'})
                 jump map
         else:
-            yossi "This is incorrect"
-            $ counter += 1
+            $ counters["cs"] += 1
             jump cs
         jump map    
-
-
-
-
-
-
-
-
-
 
 
 
@@ -280,9 +271,24 @@ label diplomat:
     jump map
 
 label library:
+    
     jump map
 
 label entre:
+    scene bg entre
+    show yossi
+    if counters["entre"] == 0:
+        yossi "Hey what are you doing here?"
+        yossi "Hmmm I think I alredy know why you are here, is it because of the most important concept I thought you?"
+    $ response = renpy.input("What is the concept?")
+    $ response = response.strip().lower()
+    if response == "opportunity" or response == "opportunities":
+        yossi "Ok it seems like you really lisent in my class I will give you a small hint"
+        #yossi "bla bla bla bla"
+    else:
+        $ counters["entre"] += 1
+        $ yossi_riddle = False
+        jump entre
     jump map
 
 label doorms:
